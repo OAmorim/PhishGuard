@@ -2,6 +2,7 @@ import streamlit as st
 
 from src.email_parser import parse_email
 from src.url_analyzer import analyze_urls
+from src.keyword_analyzer import analyze_keywords
 
 
 st.set_page_config(
@@ -16,7 +17,7 @@ st.subheader("AI-Assisted Phishing Email Analyzer")
 
 st.write(
     "Paste a suspicious email below to analyse its content, "
-    "headers, URLs, and phishing indicators."
+    "headers, URLs and phishing indicators."
 )
 
 
@@ -38,16 +39,23 @@ if st.button("Analyse Email", type="primary"):
         st.warning("Please paste an email before starting the analysis.")
 
     else:
-        # Parse the raw email.
+        # Parse the raw email into fields that can be analysed individually
         email_data = parse_email(raw_email)
 
-        # Analyse URLs found in the email body.
+        # Analyse URLs found in the email body
         url_results = analyze_urls(email_data["body"])
+
+        # Analyse both the subject and body for social engineering language
+        text_to_analyze = (
+            f"{email_data['subject']} "
+            f"{email_data['body']}"
+        )
+
+        keyword_results = analyze_keywords(text_to_analyze)
 
         st.success("Email parsed successfully.")
 
-        # EMAIL INFORMATION
-       
+        # Show the main email information
         st.divider()
         st.subheader("📧 Email Information")
 
@@ -67,8 +75,7 @@ if st.button("Analyse Email", type="primary"):
             st.write("**Reply-To:**")
             st.write(email_data["reply_to"] or "Not available")
 
-        # URL ANALYSIS
-
+        # Display URL analysis results
         st.divider()
         st.subheader("🔗 URL Analysis")
 
@@ -97,7 +104,6 @@ if st.button("Analyse Email", type="primary"):
                 )
 
             for result in url_results:
-
                 st.markdown(f"### {result['url']}")
 
                 st.write(
@@ -117,28 +123,64 @@ if st.button("Analyse Email", type="primary"):
 
                 else:
                     for indicator in result["indicators"]:
-
                         severity = indicator["severity"]
+                        message = indicator["message"]
 
                         if severity == "high":
                             st.error(
-                                f"🔴 HIGH — {indicator['message']}"
+                                f"🔴 HIGH — {message}"
                             )
 
                         elif severity == "medium":
                             st.warning(
-                                f"🟠 MEDIUM — {indicator['message']}"
+                                f"🟠 MEDIUM — {message}"
                             )
 
                         else:
                             st.info(
-                                f"🔵 LOW — {indicator['message']}"
+                                f"🔵 LOW — {message}"
                             )
 
                 st.divider()
 
-       # EMAIL BODY
-       
+        # Display suspicious language and social engineering indicators
+        st.subheader("🧠 Social Engineering Analysis")
+
+        if not keyword_results:
+            st.success(
+                "No common social engineering indicators detected."
+            )
+
+        else:
+            for indicator in keyword_results:
+                severity = indicator["severity"]
+
+                matches = ", ".join(
+                    indicator["matches"]
+                )
+
+                message = (
+                    f"{indicator['description']} "
+                    f"Detected: {matches}"
+                )
+
+                if severity == "high":
+                    st.error(
+                        f"🔴 HIGH — {message}"
+                    )
+
+                elif severity == "medium":
+                    st.warning(
+                        f"🟠 MEDIUM — {message}"
+                    )
+
+                else:
+                    st.info(
+                        f"🔵 LOW — {message}"
+                    )
+
+        # Show the body extracted by the email parser
+        st.divider()
         st.subheader("📝 Extracted Body")
 
         st.text_area(

@@ -78,6 +78,9 @@ def get_registered_domain(hostname):
     if not hostname:
         return ""
 
+    if is_ip_address(hostname):
+        return hostname
+
     extracted = tldextract.extract(hostname)
 
     if not extracted.domain:

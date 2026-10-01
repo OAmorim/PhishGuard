@@ -50,6 +50,7 @@ def parse_email(raw_email):
         "subject": message.get("Subject", ""),
         "reply_to": message.get("Reply-To", ""),
         "return_path": message.get("Return-Path", ""),
+        "authentication_results": message.get("Authentication-Results", ""),
         "body": extract_body(message),
     }
 

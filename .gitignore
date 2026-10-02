@@ -25,4 +25,4 @@ Thumbs.db
 .streamlit/secrets.toml
 
 # Datasets
-data/raw/
+data/

@@ -3,25 +3,24 @@ def calculate_hybrid_assessment(
     ml_result,
 ):
     """
-    Combine the heuristic and ML results into a final assessment.
+    Combine heuristic and ML results into a final assessment.
 
-    The two systems remain independent. Agreement produces
-    a stronger conclusion, while disagreement requires review.
+    Strong or moderate heuristic evidence combined with an ML
+    phishing prediction produces a high-risk result.
+
+    A low heuristic result combined with an ML legitimate
+    prediction produces a low-risk result.
+
+    Conflicting results require manual review.
     """
 
     heuristic_level = risk_result["level"]
     heuristic_score = risk_result["score"]
 
     ml_label = ml_result["label"]
-    ml_probability = ml_result["phishing_probability"]
-
-    heuristic_suspicious = (
-        heuristic_level == "HIGH"
-    )
-
-    heuristic_safe = (
-        heuristic_level == "LOW"
-    )
+    ml_probability = ml_result[
+        "phishing_probability"
+    ]
 
     ml_suspicious = (
         ml_label == "PHISHING"
@@ -31,21 +30,28 @@ def calculate_hybrid_assessment(
         ml_label == "LEGITIMATE"
     )
 
-    # Both systems independently detect strong phishing evidence
-    if heuristic_suspicious and ml_suspicious:
+    # Both methods indicate suspicious activity
+    if (
+        heuristic_level in {"HIGH", "MEDIUM"}
+        and ml_suspicious
+    ):
         return {
             "level": "HIGH",
             "agreement": True,
             "reason": (
-                "Both the heuristic engine and the machine "
-                "learning model detected strong phishing evidence."
+                "The heuristic engine detected suspicious "
+                "indicators and the machine learning model "
+                "also classified the email as phishing."
             ),
             "heuristic_score": heuristic_score,
             "ml_probability": ml_probability,
         }
 
-    # Both systems independently consider the email low risk
-    if heuristic_safe and ml_safe:
+    # Both methods indicate low phishing risk
+    if (
+        heuristic_level == "LOW"
+        and ml_safe
+    ):
         return {
             "level": "LOW",
             "agreement": True,
@@ -57,7 +63,7 @@ def calculate_hybrid_assessment(
             "ml_probability": ml_probability,
         }
 
-    # Medium heuristic scores or disagreement should be reviewed
+    # Conflicting results require review
     return {
         "level": "REVIEW",
         "agreement": False,

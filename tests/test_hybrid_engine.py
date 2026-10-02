@@ -17,7 +17,7 @@ def create_ml_result(
     }
 
 
-def test_both_detect_phishing():
+def test_high_heuristic_and_ml_detect_phishing():
     risk_result = {
         "score": 85,
         "level": "HIGH",
@@ -27,6 +27,27 @@ def test_both_detect_phishing():
     ml_result = create_ml_result(
         "PHISHING",
         0.94,
+    )
+
+    result = calculate_hybrid_assessment(
+        risk_result,
+        ml_result,
+    )
+
+    assert result["level"] == "HIGH"
+    assert result["agreement"] is True
+
+
+def test_medium_heuristic_and_ml_detect_phishing():
+    risk_result = {
+        "score": 45,
+        "level": "MEDIUM",
+        "breakdown": [],
+    }
+
+    ml_result = create_ml_result(
+        "PHISHING",
+        0.82,
     )
 
     result = calculate_hybrid_assessment(
@@ -80,7 +101,7 @@ def test_ml_false_positive_scenario():
     assert result["agreement"] is False
 
 
-def test_heuristic_high_ml_legitimate():
+def test_high_heuristic_ml_legitimate():
     risk_result = {
         "score": 80,
         "level": "HIGH",
@@ -101,7 +122,7 @@ def test_heuristic_high_ml_legitimate():
     assert result["agreement"] is False
 
 
-def test_medium_heuristic_requires_review():
+def test_medium_heuristic_ml_legitimate():
     risk_result = {
         "score": 45,
         "level": "MEDIUM",
@@ -109,8 +130,8 @@ def test_medium_heuristic_requires_review():
     }
 
     ml_result = create_ml_result(
-        "PHISHING",
-        0.82,
+        "LEGITIMATE",
+        0.30,
     )
 
     result = calculate_hybrid_assessment(

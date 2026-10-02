@@ -1,0 +1,49 @@
+{
+    "dataset": {
+        "samples": 12,
+        "phishing": 6,
+        "legitimate": 6
+    },
+    "heuristic": {
+        "total": 12,
+        "decided": 10,
+        "reviews": 2,
+        "coverage": 0.8333333333333334,
+        "review_rate": 0.16666666666666666,
+        "decision_accuracy": 0.9,
+        "false_positives": 0,
+        "false_negatives": 1,
+        "false_positive_rate": 0.0,
+        "false_negative_rate": 0.16666666666666666,
+        "phishing_reviews": 2,
+        "legitimate_reviews": 0
+    },
+    "machine_learning": {
+        "total": 12,
+        "decided": 12,
+        "reviews": 0,
+        "coverage": 1.0,
+        "review_rate": 0.0,
+        "decision_accuracy": 0.5833333333333334,
+        "false_positives": 5,
+        "false_negatives": 0,
+        "false_positive_rate": 0.8333333333333334,
+        "false_negative_rate": 0.0,
+        "phishing_reviews": 0,
+        "legitimate_reviews": 0
+    },
+    "hybrid": {
+        "total": 12,
+        "decided": 6,
+        "reviews": 6,
+        "coverage": 0.5,
+        "review_rate": 0.5,
+        "decision_accuracy": 1.0,
+        "false_positives": 0,
+        "false_negatives": 0,
+        "false_positive_rate": 0.0,
+        "false_negative_rate": 0.0,
+        "phishing_reviews": 1,
+        "legitimate_reviews": 5
+    }
+}

@@ -1,0 +1,13 @@
+id,scenario,expected,expected_label,heuristic_score,heuristic_level,heuristic_prediction,ml_probability,ml_label,ml_prediction,hybrid_level,hybrid_prediction
+legitimate_webinar,Legitimate webinar invitation,LEGITIMATE,0,0,LOW,0.0,0.9808218245467019,PHISHING,1,REVIEW,
+legitimate_purchase,Legitimate purchase confirmation,LEGITIMATE,0,0,LOW,0.0,0.771248800480044,PHISHING,1,REVIEW,
+legitimate_newsletter,Legitimate newsletter,LEGITIMATE,0,0,LOW,0.0,0.7769665971810773,PHISHING,1,REVIEW,
+legitimate_security_update,Legitimate account security notification,LEGITIMATE,0,0,LOW,0.0,0.96006253872369,PHISHING,1,REVIEW,
+legitimate_shipping,Legitimate shipping notification,LEGITIMATE,0,0,LOW,0.0,0.7217852523498168,PHISHING,1,REVIEW,
+legitimate_meeting,Normal business meeting reminder,LEGITIMATE,0,0,LOW,0.0,0.01653779914192538,LEGITIMATE,0,LOW,0.0
+phishing_paypal,Credential phishing with spoofed sender,PHISHING,1,100,HIGH,1.0,0.9989969992265647,PHISHING,1,HIGH,1.0
+phishing_microsoft,Credential phishing using a lookalike domain,PHISHING,1,100,HIGH,1.0,0.9950866049019467,PHISHING,1,HIGH,1.0
+phishing_invoice,Subtle invoice phishing,PHISHING,1,10,LOW,0.0,0.519597249759727,PHISHING,1,REVIEW,
+phishing_wire_transfer,Business email compromise payment request,PHISHING,1,45,MEDIUM,,0.8706105392918044,PHISHING,1,HIGH,1.0
+phishing_shortened_url,Phishing using a URL shortener,PHISHING,1,45,MEDIUM,,0.9924614388270805,PHISHING,1,HIGH,1.0
+phishing_punycode,Phishing using an internationalised lookalike domain,PHISHING,1,65,HIGH,1.0,0.9968420718597643,PHISHING,1,HIGH,1.0

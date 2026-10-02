@@ -2,6 +2,7 @@ import streamlit as st
 
 from src.email_parser import parse_email
 from src.header_analyzer import analyze_headers
+from src.hybrid_engine import calculate_hybrid_assessment
 from src.keyword_analyzer import analyze_keywords
 from src.ml_classifier import classify_email, load_model
 from src.risk_engine import calculate_risk_score
@@ -53,7 +54,7 @@ if st.button("Analyse Email", type="primary"):
         )
 
     else:
-        # Parse the raw email into fields used by the analyzers
+        # Parse the email into fields used by the different analyzers
         email_data = parse_email(raw_email)
 
         # Analyse URLs found in the email body
@@ -76,15 +77,14 @@ if st.button("Analyse Email", type="primary"):
             email_data
         )
 
-        # Combine the rule-based indicators into a heuristic risk score
+        # Calculate the heuristic phishing risk
         risk_result = calculate_risk_score(
             url_results,
             keyword_results,
             header_results,
         )
 
-        # The ML model was trained using email bodies, so only the body
-        # is passed to the classifier for now
+        # Run the ML model independently from the heuristic engine
         try:
             ml_model = get_ml_model()
 
@@ -93,12 +93,69 @@ if st.button("Analyse Email", type="primary"):
                 ml_model,
             )
 
+            hybrid_result = calculate_hybrid_assessment(
+                risk_result,
+                ml_result,
+            )
+
         except FileNotFoundError:
             ml_result = None
+            hybrid_result = None
 
         st.success("Email analysed successfully.")
 
-        # Show the heuristic result first
+        # Show the combined result first
+        st.divider()
+        st.subheader("🧩 Final Assessment")
+
+        if hybrid_result is None:
+            st.warning(
+                "The hybrid assessment is unavailable because "
+                "the machine learning model could not be loaded."
+            )
+
+        else:
+            hybrid_level = hybrid_result["level"]
+
+            if hybrid_level == "HIGH":
+                st.error(
+                    "🔴 HIGH RISK — Both analysis methods indicate "
+                    "strong phishing activity."
+                )
+
+            elif hybrid_level == "LOW":
+                st.success(
+                    "🟢 LOW RISK — Both analysis methods indicate "
+                    "low phishing risk."
+                )
+
+            else:
+                st.warning(
+                    "🟠 NEEDS REVIEW — The analysis methods do not "
+                    "provide enough agreement for a definitive result."
+                )
+
+            st.write(
+                hybrid_result["reason"]
+            )
+
+            hybrid_col1, hybrid_col2 = st.columns(2)
+
+            with hybrid_col1:
+                st.metric(
+                    "Heuristic score",
+                    f"{hybrid_result['heuristic_score']}/100",
+                )
+
+            with hybrid_col2:
+                st.metric(
+                    "ML phishing probability",
+                    (
+                        f"{hybrid_result['ml_probability'] * 100:.1f}%"
+                    ),
+                )
+
+        # Show the heuristic analysis separately
         st.divider()
         st.subheader("🛡️ Heuristic Risk Assessment")
 
@@ -109,13 +166,13 @@ if st.button("Analyse Email", type="primary"):
 
         with risk_col1:
             st.metric(
-                "Risk Score",
+                "Risk score",
                 f"{risk_score}/100",
             )
 
         with risk_col2:
             st.metric(
-                "Risk Level",
+                "Risk level",
                 risk_level,
             )
 
@@ -169,7 +226,7 @@ if st.button("Analyse Email", type="primary"):
                 "to the risk score."
             )
 
-        # Show the ML result separately from the heuristic score
+        # Show the ML result independently
         st.divider()
         st.subheader("🤖 Machine Learning Analysis")
 
@@ -193,13 +250,13 @@ if st.button("Analyse Email", type="primary"):
 
             with ml_col1:
                 st.metric(
-                    "Phishing Probability",
+                    "Phishing probability",
                     f"{phishing_probability * 100:.1f}%",
                 )
 
             with ml_col2:
                 st.metric(
-                    "Model Prediction",
+                    "Model prediction",
                     prediction_label,
                 )
 
@@ -225,7 +282,7 @@ if st.button("Analyse Email", type="primary"):
                 "independently from the heuristic risk score."
             )
 
-        # Show the main email information
+        # Show the parsed email information
         st.divider()
         st.subheader("📧 Email Information")
 
@@ -433,7 +490,7 @@ if st.button("Analyse Email", type="primary"):
                                 f"🔵 LOW — {message}"
                             )
 
-        # Show social engineering and suspicious language indicators
+        # Show suspicious language and social engineering indicators
         st.divider()
         st.subheader(
             "🧠 Social Engineering Analysis"
@@ -474,7 +531,7 @@ if st.button("Analyse Email", type="primary"):
                         f"🔵 LOW — {message}"
                     )
 
-        # Keep the extracted body visible for manual inspection
+        # Keep the extracted body visible for manual review
         st.divider()
         st.subheader("📝 Extracted Body")
 

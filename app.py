@@ -3,8 +3,9 @@ import streamlit as st
 from src.email_parser import parse_email
 from src.header_analyzer import analyze_headers
 from src.keyword_analyzer import analyze_keywords
-from src.url_analyzer import analyze_urls
+from src.ml_classifier import classify_email, load_model
 from src.risk_engine import calculate_risk_score
+from src.url_analyzer import analyze_urls
 
 
 st.set_page_config(
@@ -12,6 +13,15 @@ st.set_page_config(
     page_icon="🛡️",
     layout="wide",
 )
+
+
+@st.cache_resource
+def get_ml_model():
+    """
+    Load the trained ML model once and reuse it across Streamlit reruns.
+    """
+
+    return load_model()
 
 
 st.title("🛡️ PhishGuard")
@@ -43,7 +53,7 @@ if st.button("Analyse Email", type="primary"):
         )
 
     else:
-        # Parse the email into fields that each analyzer can use
+        # Parse the raw email into fields used by the analyzers
         email_data = parse_email(raw_email)
 
         # Analyse URLs found in the email body
@@ -51,7 +61,7 @@ if st.button("Analyse Email", type="primary"):
             email_data["body"]
         )
 
-        # Check the subject and body for social engineering language
+        # Analyse the subject and body for social engineering language
         text_to_analyze = (
             f"{email_data['subject']} "
             f"{email_data['body']}"
@@ -61,40 +71,167 @@ if st.button("Analyse Email", type="primary"):
             text_to_analyze
         )
 
-        # Check sender domains and email authentication headers
+        # Analyse sender information and authentication headers
         header_results = analyze_headers(
             email_data
         )
 
+        # Combine the rule-based indicators into a heuristic risk score
         risk_result = calculate_risk_score(
             url_results,
             keyword_results,
-            header_results
+            header_results,
         )
 
-        st.success("Email parsed successfully.")
+        # The ML model was trained using email bodies, so only the body
+        # is passed to the classifier for now
+        try:
+            ml_model = get_ml_model()
 
-        # Show the combined heuristic risk assessment
+            ml_result = classify_email(
+                email_data["body"],
+                ml_model,
+            )
+
+        except FileNotFoundError:
+            ml_result = None
+
+        st.success("Email analysed successfully.")
+
+        # Show the heuristic result first
         st.divider()
-        st.subheader("Risk Assessment")
-        score_col, level_col = st.columns(2)
+        st.subheader("🛡️ Heuristic Risk Assessment")
 
-        with score_col:
-            st.metric("Risk score", f"{risk_result['score']}/100")
+        risk_score = risk_result["score"]
+        risk_level = risk_result["level"]
 
-        with level_col:
-            st.metric("Risk level", risk_result["level"])
+        risk_col1, risk_col2 = st.columns(2)
 
-        st.progress(risk_result["score"] / 100)
-        st.caption("Heuristic score based on the detected indicators.")
+        with risk_col1:
+            st.metric(
+                "Risk Score",
+                f"{risk_score}/100",
+            )
 
-        # Show basic email information
+        with risk_col2:
+            st.metric(
+                "Risk Level",
+                risk_level,
+            )
+
+        st.progress(
+            risk_score / 100
+        )
+
+        if risk_level == "HIGH":
+            st.error(
+                "🔴 HIGH RISK — Multiple phishing indicators "
+                "were detected in this email."
+            )
+
+        elif risk_level == "MEDIUM":
+            st.warning(
+                "🟠 MEDIUM RISK — Some suspicious indicators "
+                "were detected and should be reviewed."
+            )
+
+        else:
+            st.success(
+                "🟢 LOW RISK — Few or no suspicious indicators "
+                "were detected."
+            )
+
+        st.caption(
+            "This score is calculated using heuristic rules based "
+            "on the detected email, URL and header indicators."
+        )
+
+        if risk_result["breakdown"]:
+
+            with st.expander(
+                "View risk score breakdown"
+            ):
+
+                for item in risk_result["breakdown"]:
+
+                    st.write(
+                        f"**+{item['points']} — "
+                        f"{item['source']}**"
+                    )
+
+                    st.write(
+                        item["message"]
+                    )
+
+        else:
+            st.info(
+                "No weighted phishing indicators contributed "
+                "to the risk score."
+            )
+
+        # Show the ML result separately from the heuristic score
+        st.divider()
+        st.subheader("🤖 Machine Learning Analysis")
+
+        if ml_result is None:
+            st.warning(
+                "The trained ML model was not found. "
+                "Run training/train_model.py before using "
+                "the machine learning analysis."
+            )
+
+        else:
+            phishing_probability = (
+                ml_result["phishing_probability"]
+            )
+
+            prediction_label = (
+                ml_result["label"]
+            )
+
+            ml_col1, ml_col2 = st.columns(2)
+
+            with ml_col1:
+                st.metric(
+                    "Phishing Probability",
+                    f"{phishing_probability * 100:.1f}%",
+                )
+
+            with ml_col2:
+                st.metric(
+                    "Model Prediction",
+                    prediction_label,
+                )
+
+            st.progress(
+                phishing_probability
+            )
+
+            if prediction_label == "PHISHING":
+                st.error(
+                    "🔴 The ML model classifies this "
+                    "email as phishing."
+                )
+
+            else:
+                st.success(
+                    "🟢 The ML model classifies this "
+                    "email as legitimate."
+                )
+
+            st.caption(
+                "The machine learning prediction currently uses "
+                "a 50% decision threshold and is shown "
+                "independently from the heuristic risk score."
+            )
+
+        # Show the main email information
         st.divider()
         st.subheader("📧 Email Information")
 
-        col1, col2 = st.columns(2)
+        email_col1, email_col2 = st.columns(2)
 
-        with col1:
+        with email_col1:
             st.write("**From:**")
             st.write(
                 email_data["from"]
@@ -107,7 +244,7 @@ if st.button("Analyse Email", type="primary"):
                 or "Not available"
             )
 
-        with col2:
+        with email_col2:
             st.write("**To:**")
             st.write(
                 email_data["to"]
@@ -120,7 +257,7 @@ if st.button("Analyse Email", type="primary"):
                 or "Not available"
             )
 
-        # Show header and authentication analysis
+        # Show sender domains and authentication results
         st.divider()
         st.subheader("📨 Header Analysis")
 
@@ -156,6 +293,7 @@ if st.button("Analyse Email", type="primary"):
         ]
 
         if authentication_results:
+
             auth_col1, auth_col2, auth_col3 = (
                 st.columns(3)
             )
@@ -199,6 +337,7 @@ if st.button("Analyse Email", type="primary"):
         if header_results["indicators"]:
 
             for indicator in header_results["indicators"]:
+
                 severity = indicator["severity"]
                 message = indicator["message"]
 
@@ -253,6 +392,7 @@ if st.button("Analyse Email", type="primary"):
                 )
 
             for result in url_results:
+
                 st.markdown(
                     f"### {result['url']}"
                 )
@@ -274,6 +414,7 @@ if st.button("Analyse Email", type="primary"):
 
                 else:
                     for indicator in result["indicators"]:
+
                         severity = indicator["severity"]
                         message = indicator["message"]
 
@@ -292,7 +433,7 @@ if st.button("Analyse Email", type="primary"):
                                 f"🔵 LOW — {message}"
                             )
 
-        # Show language commonly associated with social engineering
+        # Show social engineering and suspicious language indicators
         st.divider()
         st.subheader(
             "🧠 Social Engineering Analysis"
@@ -306,6 +447,7 @@ if st.button("Analyse Email", type="primary"):
 
         else:
             for indicator in keyword_results:
+
                 severity = indicator["severity"]
 
                 matches = ", ".join(

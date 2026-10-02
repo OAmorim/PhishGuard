@@ -1,0 +1,101 @@
+Email Text,Email Type,label,phishing_probability,prediction,predicted_type,correct
+"Dear Jordan, your subscription has been successfully renewed. Thank you for your continued support.",Safe Email,0,0.44082928971891916,0,Safe Email,True
+"Dear Casey, thank you for your purchase. Your order will be shipped soon.",Safe Email,0,0.8612292105466016,1,Phishing Email,False
+Congratulations! You've won a $3000 gift card. Click here to claim your prize.,Phishing Email,1,0.9866402065361369,1,Phishing Email,True
+You have a new secure message from your bank. Click here to read it.,Phishing Email,1,0.9764484802174858,1,Phishing Email,True
+Your package delivery is pending. Please provide your personal information to confirm delivery.,Phishing Email,1,0.934494071619079,1,Phishing Email,True
+"Hi Drew, it was great meeting you at the conference. Let's catch up for coffee next week.",Safe Email,0,0.17005415733065435,0,Safe Email,True
+"Hi Alex, it was great meeting you at the conference. Let's catch up for coffee next week.",Safe Email,0,0.1271548267340782,0,Safe Email,True
+Alert: Unusual login attempt detected. Verify your account by clicking here.,Phishing Email,1,0.9883447152672474,1,Phishing Email,True
+Your subscription is about to expire. Renew now to continue enjoying our services.,Phishing Email,1,0.8132489635071997,1,Phishing Email,True
+"Hello Alex, here is your weekly update on the project's progress. Please review and provide feedback.",Safe Email,0,0.07124329135738498,0,Safe Email,True
+"Dear John, we are pleased to inform you about our upcoming webinar. Register now to secure your spot.",Safe Email,0,0.9869337772370956,1,Phishing Email,False
+"Dear Sam, thank you for your purchase. Your order will be shipped soon.",Safe Email,0,0.8376781537481042,1,Phishing Email,False
+"Hi Morgan, please find the attached report for this month's performance review.",Safe Email,0,0.01986794565319903,0,Safe Email,True
+"Hi Casey, just a reminder about the project deadline next Friday. Let's ensure everything is on track.",Safe Email,0,0.06938228797403635,0,Safe Email,True
+"Hi John, please find the attached report for this month's performance review.",Safe Email,0,0.01102934863424498,0,Safe Email,True
+Please find attached the minutes from our last meeting. Let me know if you have any questions.,Safe Email,0,0.010671831600585255,0,Safe Email,True
+Reminder: Our meeting is scheduled for tomorrow at 10 AM. Please be prepared with your updates.,Safe Email,0,0.12785919597473283,0,Safe Email,True
+Important: Update your email account settings to avoid service interruption.,Phishing Email,1,0.9678718403669312,1,Phishing Email,True
+"Dear Jane, your account has been compromised. Click the link to reset your password immediately.",Phishing Email,1,0.9759858455487429,1,Phishing Email,True
+"Hi Jordan, please find the attached report for this month's performance review.",Safe Email,0,0.031103586030552147,0,Safe Email,True
+Welcome to our newsletter! Stay tuned for the latest updates and offers.,Safe Email,0,0.5692160596461359,1,Phishing Email,False
+"Dear Jane, we are pleased to inform you about our upcoming webinar. Register now to secure your spot.",Safe Email,0,0.9926157070573886,1,Phishing Email,False
+"Hi Taylor, just a reminder about the project deadline next Friday. Let's ensure everything is on track.",Safe Email,0,0.058084251799728884,0,Safe Email,True
+"Dear Alex, your account has been compromised. Click the link to reset your password immediately.",Phishing Email,1,0.966485955598011,1,Phishing Email,True
+Reminder: Our meeting is scheduled for tomorrow at 4 PM. Please be prepared with your updates.,Safe Email,0,0.16478685720154485,0,Safe Email,True
+Congratulations! You've won a $1500 gift card. Click here to claim your prize.,Phishing Email,1,0.9879891274687267,1,Phishing Email,True
+"Hi Taylor, please find the attached report for this month's performance review.",Safe Email,0,0.023800430449091754,0,Safe Email,True
+We noticed some unusual activity in your account. Log in to review recent transactions.,Phishing Email,1,0.8695569523791754,1,Phishing Email,True
+"Dear Jordan, thank you for your purchase. Your order will be shipped soon.",Safe Email,0,0.8543492936908089,1,Phishing Email,False
+"Hi Drew, just a reminder about the project deadline next Friday. Let's ensure everything is on track.",Safe Email,0,0.07236640429022563,0,Safe Email,True
+"Hi Casey, it was great meeting you at the conference. Let's catch up for coffee next week.",Safe Email,0,0.1634460301282295,0,Safe Email,True
+Your payment has been declined. Update your billing information to continue using our service.,Phishing Email,1,0.9387285211747974,1,Phishing Email,True
+"Hi Taylor, it was great meeting you at the conference. Let's catch up for coffee next week.",Safe Email,0,0.14091037492816855,0,Safe Email,True
+"Hi Jane, please find the attached report for this month's performance review.",Safe Email,0,0.03299664725591975,0,Safe Email,True
+"Hello Sam, here is your weekly update on the project's progress. Please review and provide feedback.",Safe Email,0,0.08511357049055358,0,Safe Email,True
+"Hi John, just a reminder about the project deadline next Friday. Let's ensure everything is on track.",Safe Email,0,0.032402069965720356,0,Safe Email,True
+"Hi Morgan, just a reminder about the project deadline next Friday. Let's ensure everything is on track.",Safe Email,0,0.05044565537516114,0,Safe Email,True
+"Dear Chris, thank you for your purchase. Your order will be shipped soon.",Safe Email,0,0.7293789209009633,1,Phishing Email,False
+Your invoice is attached. Please review and pay promptly to avoid penalties.,Phishing Email,1,0.41649212219330956,0,Safe Email,False
+Reminder: Our meeting is scheduled for tomorrow at 2 PM. Please be prepared with your updates.,Safe Email,0,0.16478685720154485,0,Safe Email,True
+"Dear Drew, your account has been compromised. Click the link to reset your password immediately.",Phishing Email,1,0.9768323202633497,1,Phishing Email,True
+Congratulations! You've won a $500 gift card. Click here to claim your prize.,Phishing Email,1,0.9891506524311646,1,Phishing Email,True
+"Dear John, your account has been compromised. Click the link to reset your password immediately.",Phishing Email,1,0.9543922858742044,1,Phishing Email,True
+"Dear Chris, your subscription has been successfully renewed. Thank you for your continued support.",Safe Email,0,0.26648059306987304,0,Safe Email,True
+"Hello Morgan, here is your weekly update on the project's progress. Please review and provide feedback.",Safe Email,0,0.06911064028307652,0,Safe Email,True
+"Hi Jane, just a reminder about the project deadline next Friday. Let's ensure everything is on track.",Safe Email,0,0.07415005302926019,0,Safe Email,True
+Congratulations! You've won a $2000 gift card. Click here to claim your prize.,Phishing Email,1,0.9780814467055983,1,Phishing Email,True
+"Hello Drew, here is your weekly update on the project's progress. Please review and provide feedback.",Safe Email,0,0.10006472868285314,0,Safe Email,True
+Reminder: Our meeting is scheduled for tomorrow at 1 PM. Please be prepared with your updates.,Safe Email,0,0.16478685720154485,0,Safe Email,True
+"Dear Sam, your subscription has been successfully renewed. Thank you for your continued support.",Safe Email,0,0.4080951519713813,0,Safe Email,True
+"Hello Taylor, here is your weekly update on the project's progress. Please review and provide feedback.",Safe Email,0,0.07988757233392071,0,Safe Email,True
+"Dear Morgan, we are pleased to inform you about our upcoming webinar. Register now to secure your spot.",Safe Email,0,0.9902824718551663,1,Phishing Email,False
+"Dear Chris, we are pleased to inform you about our upcoming webinar. Register now to secure your spot.",Safe Email,0,0.9870011841883805,1,Phishing Email,False
+"Hi Chris, please find the attached report for this month's performance review.",Safe Email,0,0.012464243151807698,0,Safe Email,True
+"Hi Jane, it was great meeting you at the conference. Let's catch up for coffee next week.",Safe Email,0,0.17193775920263216,0,Safe Email,True
+"Hi Morgan, it was great meeting you at the conference. Let's catch up for coffee next week.",Safe Email,0,0.12501522633866022,0,Safe Email,True
+"Dear Alex, we are pleased to inform you about our upcoming webinar. Register now to secure your spot.",Safe Email,0,0.989981084872511,1,Phishing Email,False
+"Hello Casey, here is your weekly update on the project's progress. Please review and provide feedback.",Safe Email,0,0.09580107208583293,0,Safe Email,True
+"Hi Sam, please find the attached report for this month's performance review.",Safe Email,0,0.02634055564684874,0,Safe Email,True
+"Dear Taylor, your subscription has been successfully renewed. Thank you for your continued support.",Safe Email,0,0.39537038960519216,0,Safe Email,True
+"Hello John, here is your weekly update on the project's progress. Please review and provide feedback.",Safe Email,0,0.04371862023881721,0,Safe Email,True
+"Dear Morgan, thank you for your purchase. Your order will be shipped soon.",Safe Email,0,0.8082861586338046,1,Phishing Email,False
+"Dear Jordan, we are pleased to inform you about our upcoming webinar. Register now to secure your spot.",Safe Email,0,0.9919065306691657,1,Phishing Email,False
+"Hi Chris, just a reminder about the project deadline next Friday. Let's ensure everything is on track.",Safe Email,0,0.03496995504406719,0,Safe Email,True
+"Hi Casey, please find the attached report for this month's performance review.",Safe Email,0,0.02995713806093674,0,Safe Email,True
+"Hello Jordan, here is your weekly update on the project's progress. Please review and provide feedback.",Safe Email,0,0.09641443985380567,0,Safe Email,True
+"Dear Casey, your account has been compromised. Click the link to reset your password immediately.",Phishing Email,1,0.9752290617324916,1,Phishing Email,True
+"Hi Alex, please find the attached report for this month's performance review.",Safe Email,0,0.021118087471021483,0,Safe Email,True
+"Dear Sam, we are pleased to inform you about our upcoming webinar. Register now to secure your spot.",Safe Email,0,0.9912857234673278,1,Phishing Email,False
+"Dear Sam, your account has been compromised. Click the link to reset your password immediately.",Phishing Email,1,0.971252443534184,1,Phishing Email,True
+"Dear Drew, your subscription has been successfully renewed. Thank you for your continued support.",Safe Email,0,0.4609968852733632,0,Safe Email,True
+"Dear Chris, your account has been compromised. Click the link to reset your password immediately.",Phishing Email,1,0.9550479073929325,1,Phishing Email,True
+"Dear Morgan, your subscription has been successfully renewed. Thank you for your continued support.",Safe Email,0,0.35688470733362015,0,Safe Email,True
+"Dear Taylor, thank you for your purchase. Your order will be shipped soon.",Safe Email,0,0.8335774300825727,1,Phishing Email,False
+"Dear Alex, your subscription has been successfully renewed. Thank you for your continued support.",Safe Email,0,0.3603230715691348,0,Safe Email,True
+"Hi Jordan, just a reminder about the project deadline next Friday. Let's ensure everything is on track.",Safe Email,0,0.06992689706539168,0,Safe Email,True
+"Hi Drew, please find the attached report for this month's performance review.",Safe Email,0,0.031264684556359,0,Safe Email,True
+"Hello Chris, here is your weekly update on the project's progress. Please review and provide feedback.",Safe Email,0,0.047308032270087334,0,Safe Email,True
+"Dear Jane, thank you for your purchase. Your order will be shipped soon.",Safe Email,0,0.8676680559704056,1,Phishing Email,False
+"Dear Alex, thank you for your purchase. Your order will be shipped soon.",Safe Email,0,0.8067473242201667,1,Phishing Email,False
+"Dear Taylor, we are pleased to inform you about our upcoming webinar. Register now to secure your spot.",Safe Email,0,0.9913144288855434,1,Phishing Email,False
+"Hi Jordan, it was great meeting you at the conference. Let's catch up for coffee next week.",Safe Email,0,0.16266231081290067,0,Safe Email,True
+"Hi John, it was great meeting you at the conference. Let's catch up for coffee next week.",Safe Email,0,0.0860461426713223,0,Safe Email,True
+Congratulations! You've won a $1000 gift card. Click here to claim your prize.,Phishing Email,1,0.9857087114978137,1,Phishing Email,True
+"Dear Casey, your subscription has been successfully renewed. Thank you for your continued support.",Safe Email,0,0.4456952020741053,0,Safe Email,True
+Reminder: Our meeting is scheduled for tomorrow at 3 PM. Please be prepared with your updates.,Safe Email,0,0.16478685720154485,0,Safe Email,True
+"Hi Chris, it was great meeting you at the conference. Let's catch up for coffee next week.",Safe Email,0,0.09108773762119908,0,Safe Email,True
+"Hello Jane, here is your weekly update on the project's progress. Please review and provide feedback.",Safe Email,0,0.10243842718547154,0,Safe Email,True
+"Dear Jordan, your account has been compromised. Click the link to reset your password immediately.",Phishing Email,1,0.9736063090143993,1,Phishing Email,True
+"Dear Morgan, your account has been compromised. Click the link to reset your password immediately.",Phishing Email,1,0.9673105344278831,1,Phishing Email,True
+"Hi Sam, just a reminder about the project deadline next Friday. Let's ensure everything is on track.",Safe Email,0,0.06185187456487873,0,Safe Email,True
+"Dear Drew, thank you for your purchase. Your order will be shipped soon.",Safe Email,0,0.8704779658780919,1,Phishing Email,False
+"Dear Casey, we are pleased to inform you about our upcoming webinar. Register now to secure your spot.",Safe Email,0,0.9924371568465727,1,Phishing Email,False
+"Dear John, your subscription has been successfully renewed. Thank you for your continued support.",Safe Email,0,0.25325012005211367,0,Safe Email,True
+"Dear Jane, your subscription has been successfully renewed. Thank you for your continued support.",Safe Email,0,0.4622066286591841,0,Safe Email,True
+"Hi Sam, it was great meeting you at the conference. Let's catch up for coffee next week.",Safe Email,0,0.1473245482603401,0,Safe Email,True
+"Dear Taylor, your account has been compromised. Click the link to reset your password immediately.",Phishing Email,1,0.971115417208651,1,Phishing Email,True
+"Dear John, thank you for your purchase. Your order will be shipped soon.",Safe Email,0,0.7197611504380198,1,Phishing Email,False
+"Dear Drew, we are pleased to inform you about our upcoming webinar. Register now to secure your spot.",Safe Email,0,0.9929105200781567,1,Phishing Email,False
+"Hi Alex, just a reminder about the project deadline next Friday. Let's ensure everything is on track.",Safe Email,0,0.052001371343314735,0,Safe Email,True

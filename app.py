@@ -4,6 +4,7 @@ from src.email_parser import parse_email
 from src.header_analyzer import analyze_headers
 from src.keyword_analyzer import analyze_keywords
 from src.url_analyzer import analyze_urls
+from src.risk_engine import calculate_risk_score
 
 
 st.set_page_config(
@@ -65,7 +66,27 @@ if st.button("Analyse Email", type="primary"):
             email_data
         )
 
+        risk_result = calculate_risk_score(
+            url_results,
+            keyword_results,
+            header_results
+        )
+
         st.success("Email parsed successfully.")
+
+        # Show the combined heuristic risk assessment
+        st.divider()
+        st.subheader("Risk Assessment")
+        score_col, level_col = st.columns(2)
+
+        with score_col:
+            st.metric("Risk score", f"{risk_result['score']}/100")
+
+        with level_col:
+            st.metric("Risk level", risk_result["level"])
+
+        st.progress(risk_result["score"] / 100)
+        st.caption("Heuristic score based on the detected indicators.")
 
         # Show basic email information
         st.divider()

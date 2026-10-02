@@ -1,0 +1,42 @@
+{
+    "dataset": {
+        "original_rows": 2000,
+        "unique_email_texts": 100,
+        "duplicate_rows": 1900,
+        "conflicting_labels": 0
+    },
+    "full_dataset": {
+        "accuracy": 0.8005,
+        "precision": 0.7518860016764459,
+        "recall": 0.897,
+        "f1_score": 0.8180574555403557,
+        "confusion_matrix": [
+            [
+                704,
+                296
+            ],
+            [
+                103,
+                897
+            ]
+        ],
+        "samples": 2000
+    },
+    "deduplicated_dataset": {
+        "accuracy": 0.78,
+        "precision": 0.5116279069767442,
+        "recall": 0.9565217391304348,
+        "f1_score": 0.6666666666666666,
+        "confusion_matrix": [
+            [
+                56,
+                21
+            ],
+            [
+                1,
+                22
+            ]
+        ],
+        "samples": 100
+    }
+}

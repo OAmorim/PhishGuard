@@ -1,0 +1,20 @@
+From: Microsoft Security <security@microsoft.com>
+To: customer@example.com
+Reply-To: security@microsoft.com
+Return-Path: notifications@microsoft.com
+Subject: Security information update
+Authentication-Results: mail.example.com; spf=pass; dkim=pass; dmarc=pass
+MIME-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+
+Hello,
+
+Your Microsoft security information was recently updated.
+
+You can review your security settings here:
+
+https://www.microsoft.com/security
+
+If you made this change, no further action is required.
+
+Microsoft Security Team

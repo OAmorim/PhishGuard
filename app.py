@@ -34,28 +34,67 @@ st.write(
 )
 
 
-raw_email = st.text_area(
-    "Email content",
-    height=350,
-    placeholder=(
-        "From: sender@example.com\n"
-        "To: user@example.com\n"
-        "Subject: Example email\n\n"
-        "Paste the email body here..."
-    ),
+st.write(
+    "Analyse an email by pasting its raw content "
+    "or uploading an `.eml` file."
 )
 
 
+input_method = st.radio(
+    "Choose input method",
+    [
+        "Paste email",
+        "Upload .eml",
+    ],
+    horizontal=True,
+)
+
+
+email_input = None
+
+
+if input_method == "Paste email":
+
+    raw_email = st.text_area(
+        "Email content",
+        height=350,
+        placeholder=(
+            "From: sender@example.com\n"
+            "To: user@example.com\n"
+            "Subject: Example email\n\n"
+            "Paste the email body here..."
+        ),
+    )
+
+    if raw_email.strip():
+        email_input = raw_email
+
+
+else:
+
+    uploaded_file = st.file_uploader(
+        "Upload email",
+        type=["eml"],
+        help="Upload an email saved in .eml format.",
+    )
+
+    if uploaded_file is not None:
+        email_input = uploaded_file.getvalue()
+
+        st.info(
+            f"Loaded file: {uploaded_file.name}"
+        )
+
 if st.button("Analyse Email", type="primary"):
 
-    if not raw_email.strip():
+    if email_input is None:
         st.warning(
-            "Please paste an email before starting the analysis."
+            "Please paste an email or upload an .eml file before starting the analysis."
         )
 
     else:
         # Parse the email into fields used by the different analyzers
-        email_data = parse_email(raw_email)
+        email_data = parse_email(email_input)
 
         # Analyse URLs found in the email body
         url_results = analyze_urls(

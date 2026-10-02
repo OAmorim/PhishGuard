@@ -1,0 +1,23 @@
+From: PayPal Security <security@paypal.com>
+To: customer@example.com
+Reply-To: verify.account@malicious-domain.xyz
+Return-Path: bounce@malicious-domain.xyz
+Subject: URGENT: Your PayPal account has been suspended
+Authentication-Results: mail.example.com; spf=fail; dkim=fail; dmarc=fail
+MIME-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+
+Dear Customer,
+
+We detected unusual activity on your PayPal account.
+
+Your account has been temporarily suspended.
+
+You must verify your identity immediately:
+
+http://185.31.22.10/paypal/login
+
+Failure to verify your account within 24 hours will result
+in permanent account termination.
+
+PayPal Security Team

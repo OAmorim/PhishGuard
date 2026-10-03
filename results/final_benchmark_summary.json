@@ -1,0 +1,53 @@
+{
+    "dataset": {
+        "name": "E-PhishGen",
+        "language_filter": "en",
+        "samples": 11502,
+        "legitimate": 5506,
+        "phishing": 5996,
+        "benchmark_scope": "Content-based evaluation. The source dataset does not provide original email authentication headers."
+    },
+    "machine_learning": {
+        "samples": 11502,
+        "accuracy": 0.6873587202225699,
+        "precision": 0.7660753880266076,
+        "recall": 0.5762174783188793,
+        "f1_score": 0.6577193984389872,
+        "true_negatives": 4451,
+        "false_positives": 1055,
+        "false_negatives": 2541,
+        "true_positives": 3455
+    },
+    "heuristic": {
+        "samples": 11502,
+        "decided": 10101,
+        "reviews": 1401,
+        "coverage": 0.8781950965049556,
+        "review_rate": 0.12180490349504434,
+        "decision_accuracy": 0.544995544995545,
+        "correct_decisions": 5505,
+        "false_positives": 0,
+        "false_negatives": 4596,
+        "legitimate_reviews": 1,
+        "phishing_reviews": 1400,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1_score": 0.0
+    },
+    "hybrid": {
+        "samples": 11502,
+        "decided": 8131,
+        "reviews": 3371,
+        "coverage": 0.7069205355590332,
+        "review_rate": 0.2930794644409668,
+        "decision_accuracy": 0.7034805067027425,
+        "correct_decisions": 5720,
+        "false_positives": 1,
+        "false_negatives": 2410,
+        "legitimate_reviews": 1054,
+        "phishing_reviews": 2317,
+        "precision": 0.9992125984251968,
+        "recall": 0.3449306876868714,
+        "f1_score": 0.5128308749242271
+    }
+}

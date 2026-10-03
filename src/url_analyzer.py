@@ -5,12 +5,6 @@ from urllib.parse import urlparse
 import tldextract
 
 
-URL_PATTERN = re.compile(
-    r'https?://[^\s<>"\']+',
-    re.IGNORECASE
-)
-
-
 URL_SHORTENERS = {
     "bit.ly",
     "tinyurl.com",
@@ -36,6 +30,12 @@ SUSPICIOUS_TLDS = {
 }
 
 
+URL_PATTERN = re.compile(
+    r"https?://[^\s<>\"']+",
+    re.IGNORECASE,
+)
+
+
 def extract_urls(text):
     """
     Extract HTTP and HTTPS URLs from text.
@@ -46,13 +46,19 @@ def extract_urls(text):
 
     urls = URL_PATTERN.findall(text)
 
-    # Remove common punctuation that may appear after a URL
-    cleaned_urls = [
-        url.rstrip(".,;:!?)]}")
-        for url in urls
-    ]
+    # Remove punctuation commonly found immediately after URLs
+    cleaned_urls = []
 
-    return list(dict.fromkeys(cleaned_urls))
+    for url in urls:
+        cleaned_url = url.rstrip(
+            ".,;!?)"
+        )
+
+        cleaned_urls.append(
+            cleaned_url
+        )
+
+    return cleaned_urls
 
 
 def is_ip_address(hostname):
@@ -64,15 +70,21 @@ def is_ip_address(hostname):
         return False
 
     try:
-        ipaddress.ip_address(hostname)
+        ipaddress.ip_address(
+            hostname
+        )
+
         return True
+
     except ValueError:
         return False
 
 
 def get_registered_domain(hostname):
     """
-    Extract the registered domain from a hostname.
+    Return the registered domain for a hostname.
+
+    IP addresses are returned unchanged.
     """
 
     if not hostname:
@@ -81,69 +93,146 @@ def get_registered_domain(hostname):
     if is_ip_address(hostname):
         return hostname
 
-    extracted = tldextract.extract(hostname)
+    extracted = tldextract.extract(
+        hostname
+    )
 
-    if not extracted.domain:
-        return ""
+    if (
+        extracted.domain
+        and extracted.suffix
+    ):
+        return (
+            f"{extracted.domain}."
+            f"{extracted.suffix}"
+        )
 
-    if extracted.suffix:
-        return f"{extracted.domain}.{extracted.suffix}"
+    if extracted.domain:
+        return extracted.domain
 
-    return extracted.domain
+    return hostname
 
 
 def analyze_url(url):
     """
-    Analyse a URL and return detected phishing indicators.
+    Analyse a single URL and return suspicious indicators.
+
+    Malformed URLs are tolerated instead of causing the
+    application to crash.
     """
-
-    parsed = urlparse(url)
-
-    hostname = (parsed.hostname or "").lower()
 
     indicators = []
 
+    try:
+        parsed = urlparse(
+            url
+        )
+
+    except ValueError:
+        return {
+            "url": url,
+            "hostname": "",
+            "registered_domain": "",
+            "indicators": [],
+        }
+
+    try:
+        hostname = (
+            parsed.hostname.lower()
+            if parsed.hostname
+            else ""
+        )
+
+    except ValueError:
+        return {
+            "url": url,
+            "hostname": "",
+            "registered_domain": "",
+            "indicators": [],
+        }
+
+    registered_domain = (
+        get_registered_domain(
+            hostname
+        )
+        if hostname
+        else ""
+    )
+
+    # Plain HTTP does not provide transport encryption
     if parsed.scheme.lower() == "http":
         indicators.append({
             "type": "insecure_protocol",
             "severity": "medium",
-            "message": "URL uses HTTP instead of HTTPS.",
+            "message": (
+                "The URL uses HTTP instead of HTTPS."
+            ),
         })
 
-    if is_ip_address(hostname):
+    # Phishing URLs sometimes use raw IP addresses
+    if (
+        hostname
+        and is_ip_address(hostname)
+    ):
         indicators.append({
             "type": "ip_address_url",
             "severity": "high",
-            "message": "URL uses an IP address instead of a domain name.",
+            "message": (
+                "The URL uses an IP address instead "
+                "of a domain name."
+            ),
         })
 
-    registered_domain = get_registered_domain(hostname)
-
-    if registered_domain in URL_SHORTENERS:
+    # Shortened URLs can hide the real destination
+    if (
+        registered_domain
+        in URL_SHORTENERS
+    ):
         indicators.append({
             "type": "url_shortener",
             "severity": "medium",
-            "message": "URL uses a known URL shortening service.",
+            "message": (
+                "The URL uses a known URL "
+                "shortening service."
+            ),
         })
 
-    if hostname.startswith("xn--") or ".xn--" in hostname:
+    # Punycode may be used for lookalike domains
+    if (
+        hostname
+        and "xn--" in hostname
+    ):
         indicators.append({
             "type": "punycode_domain",
             "severity": "high",
-            "message": "URL contains a Punycode domain.",
-        })
-
-    extracted = tldextract.extract(hostname)
-
-    if extracted.suffix.lower() in SUSPICIOUS_TLDS:
-        indicators.append({
-            "type": "suspicious_tld",
-            "severity": "medium",
             "message": (
-                f"URL uses the potentially suspicious "
-                f".{extracted.suffix} top-level domain."
+                "The URL contains a Punycode "
+                "domain, which may be used for "
+                "lookalike domains."
             ),
         })
+
+    # Some TLDs are frequently seen in suspicious URLs.
+    # This alone does not mean that a URL is phishing.
+    if hostname:
+        extracted = tldextract.extract(
+            hostname
+        )
+
+        suffix = (
+            extracted.suffix.lower()
+            if extracted.suffix
+            else ""
+        )
+
+        if suffix in SUSPICIOUS_TLDS:
+            indicators.append({
+                "type": "suspicious_tld",
+                "severity": "medium",
+                "message": (
+                    f"The URL uses the .{suffix} "
+                    "top-level domain."
+                ),
+            })
 
     return {
         "url": url,
@@ -158,7 +247,9 @@ def analyze_urls(text):
     Extract and analyse all URLs found in text.
     """
 
-    urls = extract_urls(text)
+    urls = extract_urls(
+        text
+    )
 
     return [
         analyze_url(url)

@@ -1,77 +1,206 @@
-from src.url_analyzer import analyze_url, extract_urls
+from src.url_analyzer import (
+    analyze_url,
+    analyze_urls,
+    extract_urls,
+    get_registered_domain,
+    is_ip_address,
+)
+
+
+def get_indicator_types(result):
+    return {
+        indicator["type"]
+        for indicator in result["indicators"]
+    }
 
 
 def test_extract_urls():
     text = (
-        "Click here: https://example.com/login "
-        "or visit http://192.168.1.1/test"
+        "Visit https://example.com/login "
+        "or http://test.example.org/page."
     )
 
-    urls = extract_urls(text)
-
-    assert len(urls) == 2
-    assert "https://example.com/login" in urls
-    assert "http://192.168.1.1/test" in urls
-
-
-def test_ip_address_url():
-    result = analyze_url(
-        "http://185.31.22.10/paypal/login"
+    urls = extract_urls(
+        text
     )
 
-    indicator_types = [
-        indicator["type"]
-        for indicator in result["indicators"]
-    ]
-
-    assert "ip_address_url" in indicator_types
-    assert "insecure_protocol" in indicator_types
-
-
-def test_normal_https_url():
-    result = analyze_url(
-        "https://www.microsoft.com/security"
+    assert (
+        "https://example.com/login"
+        in urls
     )
 
-    assert result["hostname"] == "www.microsoft.com"
-
-    indicator_types = [
-        indicator["type"]
-        for indicator in result["indicators"]
-    ]
-
-    assert "ip_address_url" not in indicator_types
-    assert "insecure_protocol" not in indicator_types
-
-def test_url_shortener():
-    result = analyze_url(
-        "https://bit.ly/example"
+    assert (
+        "http://test.example.org/page"
+        in urls
     )
 
-    indicator_types = [
-        indicator["type"]
-        for indicator in result["indicators"]
-    ]
 
-    assert "url_shortener" in indicator_types
+def test_ip_address_detection():
+    assert is_ip_address(
+        "185.31.22.10"
+    ) is True
 
+    assert is_ip_address(
+        "example.com"
+    ) is False
 
-def test_suspicious_tld():
-    result = analyze_url(
-        "https://account-verification.xyz/login"
+    assert (
+        get_registered_domain(
+            "185.31.22.10"
+        )
+        == "185.31.22.10"
     )
 
-    indicator_types = [
-        indicator["type"]
-        for indicator in result["indicators"]
-    ]
 
-    assert "suspicious_tld" in indicator_types
-
-
-def test_ip_registered_domain():
+def test_ip_based_http_url():
     result = analyze_url(
         "http://185.31.22.10/login"
     )
 
-    assert result["registered_domain"] == "185.31.22.10"
+    indicator_types = (
+        get_indicator_types(
+            result
+        )
+    )
+
+    assert (
+        result["hostname"]
+        == "185.31.22.10"
+    )
+
+    assert (
+        "insecure_protocol"
+        in indicator_types
+    )
+
+    assert (
+        "ip_address_url"
+        in indicator_types
+    )
+
+
+def test_url_shortener_detection():
+    result = analyze_url(
+        "https://bit.ly/account-check"
+    )
+
+    indicator_types = (
+        get_indicator_types(
+            result
+        )
+    )
+
+    assert (
+        result["registered_domain"]
+        == "bit.ly"
+    )
+
+    assert (
+        "url_shortener"
+        in indicator_types
+    )
+
+
+def test_punycode_and_suspicious_tld_detection():
+    result = analyze_url(
+        "http://xn--example-test.xyz/login"
+    )
+
+    indicator_types = (
+        get_indicator_types(
+            result
+        )
+    )
+
+    assert (
+        "punycode_domain"
+        in indicator_types
+    )
+
+    assert (
+        "suspicious_tld"
+        in indicator_types
+    )
+
+    assert (
+        "insecure_protocol"
+        in indicator_types
+    )
+
+
+def test_clean_https_url():
+    result = analyze_url(
+        "https://www.microsoft.com/security"
+    )
+
+    assert (
+        result["hostname"]
+        == "www.microsoft.com"
+    )
+
+    assert (
+        result["registered_domain"]
+        == "microsoft.com"
+    )
+
+    assert (
+        result["indicators"]
+        == []
+    )
+
+
+def test_analyze_multiple_urls():
+    text = (
+        "Safe link: "
+        "https://www.microsoft.com/security "
+        "Suspicious link: "
+        "http://185.31.22.10/login"
+    )
+
+    results = analyze_urls(
+        text
+    )
+
+    assert len(results) == 2
+
+    assert (
+        results[0]["registered_domain"]
+        == "microsoft.com"
+    )
+
+    second_indicators = (
+        get_indicator_types(
+            results[1]
+        )
+    )
+
+    assert (
+        "ip_address_url"
+        in second_indicators
+    )
+
+
+def test_invalid_ipv6_url_does_not_crash():
+    result = analyze_url(
+        "http://[invalid-ipv6"
+    )
+
+    assert (
+        result["url"]
+        == "http://[invalid-ipv6"
+    )
+
+    assert (
+        result["hostname"]
+        == ""
+    )
+
+    assert (
+        result["registered_domain"]
+        == ""
+    )
+
+    assert (
+        result["indicators"]
+        == []
+    )

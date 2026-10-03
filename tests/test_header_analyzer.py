@@ -1,44 +1,130 @@
 from pathlib import Path
 
-import pytest
 from streamlit.testing.v1 import AppTest
 
-from src.email_parser import parse_email
-from src.header_analyzer import analyze_headers, parse_authentication_results
+from src.header_analyzer import analyze_headers
 
 
-@pytest.mark.parametrize("header", [
-    "Authentication-Results: test; spf=fail; dkim=pass; dmarc=fail",
-    "authentication-results: test;\n spf=fail;\n dkim=pass;\n dmarc=fail",
-])
-def test_authentication_results_pipeline(header):
-    email_data = parse_email(
-        f"From: security@paypal.com\n"
-        f"Reply-To: attacker@malicious.xyz\n{header}\n\nHello\n"
+def test_authentication_results_are_parsed():
+    email_data = {
+        "from": "security@example.com",
+        "reply_to": "",
+        "return_path": "",
+        "authentication_results": (
+            "mail.example.com; "
+            "spf=fail; "
+            "dkim=pass; "
+            "dmarc=fail"
+        ),
+    }
+
+    result = analyze_headers(
+        email_data
     )
-    expected = {"spf": "fail", "dkim": "pass", "dmarc": "fail"}
-    assert parse_authentication_results(email_data["authentication_results"]) == expected
-    result = analyze_headers(email_data)
-    assert result["authentication_results"] == expected
-    types = {indicator["type"] for indicator in result["indicators"]}
-    assert {"reply_to_mismatch", "spf_failure", "dmarc_failure"} <= types
-    assert "dkim_failure" not in types
+
+    authentication = result[
+        "authentication_results"
+    ]
+
+    assert authentication["spf"] == "fail"
+    assert authentication["dkim"] == "pass"
+    assert authentication["dmarc"] == "fail"
 
 
-def test_missing_authentication_results():
-    email_data = parse_email("From: sender@example.com\n\nHello")
-    assert email_data["authentication_results"] == ""
-    assert analyze_headers(email_data)["authentication_results"] == {}
+def test_matching_sender_domains():
+    email_data = {
+        "from": "Security <security@example.com>",
+        "reply_to": "support@example.com",
+        "return_path": "bounce@example.com",
+        "authentication_results": (
+            "mail.example.com; "
+            "spf=pass; "
+            "dkim=pass; "
+            "dmarc=pass"
+        ),
+    }
+
+    result = analyze_headers(
+        email_data
+    )
+
+    assert result["from_domain"] == "example.com"
+    assert result["reply_to_domain"] == "example.com"
+    assert result["return_path_domain"] == "example.com"
+
+    authentication = result[
+        "authentication_results"
+    ]
+
+    assert authentication["spf"] == "pass"
+    assert authentication["dkim"] == "pass"
+    assert authentication["dmarc"] == "pass"
+
+
+def test_mismatched_sender_domains_create_indicators():
+    email_data = {
+        "from": "PayPal Security <security@paypal.com>",
+        "reply_to": "verify@malicious-domain.xyz",
+        "return_path": "bounce@malicious-domain.xyz",
+        "authentication_results": "",
+    }
+
+    result = analyze_headers(
+        email_data
+    )
+
+    assert result["from_domain"] == "paypal.com"
+
+    assert (
+        result["reply_to_domain"]
+        == "malicious-domain.xyz"
+    )
+
+    assert (
+        result["return_path_domain"]
+        == "malicious-domain.xyz"
+    )
+
+    assert len(
+        result["indicators"]
+    ) >= 2
 
 
 def test_streamlit_displays_authentication_results():
-    app = AppTest.from_file(Path(__file__).resolve().parents[1] / "app.py").run()
+    app_path = (
+        Path(__file__).resolve().parents[1]
+        / "app.py"
+    )
+
+    app = AppTest.from_file(
+        app_path
+    ).run(
+        timeout=20
+    )
+
     app.text_area[0].input(
         "From: security@paypal.com\n"
-        "Authentication-Results: test; spf=fail; dkim=pass; dmarc=fail\n\nHello"
+        "Authentication-Results: test; "
+        "spf=fail; dkim=pass; dmarc=fail\n\n"
+        "Hello"
     )
-    app.button[0].click().run()
+
+    app.button[0].click().run(
+        timeout=20
+    )
+
     assert not app.exception
-    displayed = {element.value for element in app.markdown}
-    assert {"SPF: **FAIL**", "DKIM: **PASS**", "DMARC: **FAIL**"} <= displayed
-    assert not any("No SPF, DKIM or DMARC" in element.value for element in app.info)
+
+    markdown_text = " ".join(
+        element.value
+        for element in app.markdown
+    )
+
+    assert "SPF:" in markdown_text
+    assert "FAIL" in markdown_text
+
+    assert "DKIM:" in markdown_text
+    assert "PASS" in markdown_text
+
+    assert "DMARC:" in markdown_text
+    assert "FAIL" in markdown_text

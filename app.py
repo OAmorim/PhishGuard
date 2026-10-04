@@ -5,6 +5,7 @@ from src.explanation_engine import build_explanation
 from src.header_analyzer import analyze_headers
 from src.hybrid_engine import calculate_hybrid_assessment
 from src.keyword_analyzer import analyze_keywords
+from src.llm_explainer import generate_llm_explanation
 from src.ml_classifier import classify_email, load_model
 from src.risk_engine import calculate_risk_score
 from src.url_analyzer import analyze_urls
@@ -129,6 +130,27 @@ else:
         )
 
 
+# Optional local LLM explanation.
+# The LLM explains the existing result but does not classify the email.
+use_llm_explanation = st.checkbox(
+    "Generate local AI analyst explanation",
+    value=False,
+    help=(
+        "Uses a local Ollama model to explain the existing "
+        "PhishGuard assessment. The LLM does not perform "
+        "the phishing classification."
+    ),
+)
+
+
+if use_llm_explanation:
+    st.caption(
+        "The explanation is generated locally with Ollama. "
+        "Only structured PhishGuard analysis results are sent "
+        "to the LLM, not the raw email body."
+    )
+
+
 if st.button(
     "Analyse Email",
     type="primary",
@@ -173,6 +195,12 @@ if st.button(
             header_results,
         )
 
+        ml_result = None
+        hybrid_result = None
+        explanation_result = None
+        llm_explanation = None
+        llm_error = None
+
         # Run ML and hybrid analysis
         try:
             ml_model = get_ml_model()
@@ -200,6 +228,31 @@ if st.button(
             hybrid_result = None
             explanation_result = None
 
+        # Generate the optional LLM explanation only after
+        # the detection pipeline has finished.
+        if (
+            use_llm_explanation
+            and hybrid_result is not None
+            and ml_result is not None
+        ):
+            try:
+                with st.spinner(
+                    "Generating local AI analyst explanation..."
+                ):
+                    llm_explanation = (
+                        generate_llm_explanation(
+                            risk_result,
+                            ml_result,
+                            hybrid_result,
+                        )
+                    )
+
+            except (
+                ConnectionError,
+                RuntimeError,
+            ) as exc:
+                llm_error = str(exc)
+
         st.success(
             "Email analysed successfully."
         )
@@ -220,7 +273,9 @@ if st.button(
                 hybrid_result["level"]
             )
 
-            with st.container(border=True):
+            with st.container(
+                border=True
+            ):
 
                 if hybrid_level == "HIGH":
                     st.error(
@@ -268,6 +323,7 @@ if st.button(
                         ),
                     )
 
+                # Detailed evidence
                 with st.expander(
                     "🔎 Why this result?",
                     expanded=(
@@ -275,10 +331,14 @@ if st.button(
                     ),
                 ):
 
-                    if explanation_result["evidence"]:
+                    if explanation_result[
+                        "evidence"
+                    ]:
 
                         for evidence in (
-                            explanation_result["evidence"]
+                            explanation_result[
+                                "evidence"
+                            ]
                         ):
                             st.markdown(
                                 f"- **{evidence['source']}** — "
@@ -292,15 +352,62 @@ if st.button(
                             "indicators were detected."
                         )
 
+                # Deterministic recommended actions
                 st.markdown(
                     "#### Recommended Actions"
                 )
 
                 for action in (
-                    explanation_result["actions"]
+                    explanation_result[
+                        "actions"
+                    ]
                 ):
                     st.markdown(
                         f"- {action}"
+                    )
+
+                # Optional local LLM explanation
+                st.markdown(
+                    "#### 🤖 AI Analyst Explanation"
+                )
+
+                if not use_llm_explanation:
+                    st.caption(
+                        "Enable the local AI analyst explanation "
+                        "before analysing the email to generate "
+                        "an additional natural-language summary."
+                    )
+
+                elif llm_explanation:
+
+                    with st.container(
+                        border=True
+                    ):
+                        st.markdown(
+                            llm_explanation
+                        )
+
+                    st.caption(
+                        "Generated locally using Ollama. "
+                        "The LLM explains the existing assessment "
+                        "and does not determine the classification."
+                    )
+
+                elif llm_error:
+                    st.warning(
+                        llm_error
+                    )
+
+                    st.caption(
+                        "The phishing analysis above is still "
+                        "valid. Only the optional LLM explanation "
+                        "could not be generated."
+                    )
+
+                else:
+                    st.info(
+                        "No AI analyst explanation "
+                        "was generated."
                     )
 
                 st.caption(
@@ -316,8 +423,13 @@ if st.button(
             "🛡️ Heuristic Risk Assessment"
         )
 
-        risk_score = risk_result["score"]
-        risk_level = risk_result["level"]
+        risk_score = risk_result[
+            "score"
+        ]
+
+        risk_level = risk_result[
+            "level"
+        ]
 
         risk_col1, risk_col2 = (
             st.columns(2)
@@ -370,14 +482,18 @@ if st.button(
             "indicators."
         )
 
-        if risk_result["breakdown"]:
+        if risk_result[
+            "breakdown"
+        ]:
 
             with st.expander(
                 "View risk score breakdown"
             ):
 
                 for item in (
-                    risk_result["breakdown"]
+                    risk_result[
+                        "breakdown"
+                    ]
                 ):
 
                     st.write(
@@ -416,7 +532,9 @@ if st.button(
             )
 
             prediction_label = (
-                ml_result["label"]
+                ml_result[
+                    "label"
+                ]
             )
 
             ml_col1, ml_col2 = (
@@ -529,7 +647,9 @@ if st.button(
                 )
 
                 st.write(
-                    header_results["from_domain"]
+                    header_results[
+                        "from_domain"
+                    ]
                     or "Not available"
                 )
 
@@ -615,18 +735,26 @@ if st.button(
                     "were found in the email headers."
                 )
 
-            if header_results["indicators"]:
+            if header_results[
+                "indicators"
+            ]:
 
                 for indicator in (
-                    header_results["indicators"]
+                    header_results[
+                        "indicators"
+                    ]
                 ):
 
                     severity = (
-                        indicator["severity"]
+                        indicator[
+                            "severity"
+                        ]
                     )
 
                     message = (
-                        indicator["message"]
+                        indicator[
+                            "message"
+                        ]
                     )
 
                     if severity == "high":
@@ -678,7 +806,9 @@ if st.button(
                 with url_col1:
                     st.metric(
                         "URLs detected",
-                        len(url_results),
+                        len(
+                            url_results
+                        ),
                     )
 
                 with url_col2:
@@ -687,7 +817,9 @@ if st.button(
                         suspicious_url_count,
                     )
 
-                for result in url_results:
+                for result in (
+                    url_results
+                ):
 
                     st.markdown(
                         f"### {result['url']}"
@@ -703,7 +835,9 @@ if st.button(
                         f"{result['registered_domain'] or 'Unknown'}"
                     )
 
-                    if not result["indicators"]:
+                    if not result[
+                        "indicators"
+                    ]:
                         st.success(
                             "No suspicious URL "
                             "indicators detected."
@@ -711,15 +845,21 @@ if st.button(
 
                     else:
                         for indicator in (
-                            result["indicators"]
+                            result[
+                                "indicators"
+                            ]
                         ):
 
                             severity = (
-                                indicator["severity"]
+                                indicator[
+                                    "severity"
+                                ]
                             )
 
                             message = (
-                                indicator["message"]
+                                indicator[
+                                    "message"
+                                ]
                             )
 
                             if severity == "high":
@@ -757,11 +897,15 @@ if st.button(
                 ):
 
                     severity = (
-                        indicator["severity"]
+                        indicator[
+                            "severity"
+                        ]
                     )
 
                     matches = ", ".join(
-                        indicator["matches"]
+                        indicator[
+                            "matches"
+                        ]
                     )
 
                     message = (
@@ -792,7 +936,9 @@ if st.button(
         ):
             st.text_area(
                 "Body",
-                value=email_data["body"],
+                value=email_data[
+                    "body"
+                ],
                 height=250,
                 disabled=True,
             )

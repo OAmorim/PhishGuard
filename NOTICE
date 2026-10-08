@@ -1,0 +1,7 @@
+PhishGuard
+Copyright 2026 Gonçalo Amorim
+
+Original PhishGuard code and documentation are licensed under Apache License 2.0.
+Third-party datasets, dependencies and models retain their own licences.
+Dataset attribution and verification: docs/DATASETS.md.
+Earlier releases distributed under MIT retain the permissions granted by that licence.

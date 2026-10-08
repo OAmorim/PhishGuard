@@ -198,7 +198,10 @@ def main():
         exist_ok=True,
     )
 
-    df.to_csv(
+    # Publish predictions without redistributing source email text.
+    export_df = df.drop(columns=["Email Text"]).copy()
+    export_df.insert(0, "sample_id", range(len(export_df)))
+    export_df.to_csv(
         PREDICTIONS_PATH,
         index=False,
     )

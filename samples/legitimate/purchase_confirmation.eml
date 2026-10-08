@@ -1,0 +1,19 @@
+From: Shop <orders@example.com>
+To: user@example.com
+Reply-To: orders@example.com
+Return-Path: orders@example.com
+Subject: Order confirmation
+Authentication-Results: mail.example.com; spf=pass; dkim=pass; dmarc=pass
+
+Dear Customer,
+
+Thank you for your purchase.
+
+Your order will be shipped soon.
+
+You can view your order at:
+
+https://example.com/orders
+
+Kind regards,
+Customer Service

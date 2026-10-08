@@ -547,8 +547,7 @@ def main():
         )
 
         results.append({
-            "subject": subject,
-            "body": body,
+            "sample_id": int(index),
             "expected_label": int(
                 row["type"]
             ),

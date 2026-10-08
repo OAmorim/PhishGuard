@@ -1,209 +1,92 @@
-# PhishGuard - Setup Guide
+# PhishGuard — instalação simples
 
-This guide explains how to set up the PhishGuard project on a clean Windows machine using VS Code.
+Requisitos: Python 3.12. Git é necessário apenas para clonar; VS Code é opcional. Executar os comandos na raiz do projeto.
 
-## 1. Recommended software
-
-Install:
-
-- Git
-- Python 3.12.x
-- Visual Studio Code
-- VS Code Python extension
-
-> Do not copy the old `.venv` folder from another PC. Create a new virtual environment on this machine.
-
-## 2. Get the project
-
-The safest option is to clone the current GitHub repository and keep the copy on the external drive only as a backup.
+## 1. Obter o projeto
 
 ```powershell
-git clone <GITHUB_REPOSITORY_URL>
+git clone https://github.com/OAmorim/PhishGuard.git
 cd PhishGuard
 ```
 
-If you prefer to continue from the external-drive copy, first copy the project folder to the local disk and make sure it contains the `.git` folder.
+Se já tiveres a pasta, basta abri-la no terminal.
 
-You can confirm that Git recognises the repository with:
-
-```powershell
-git status
-```
-
-## 3. Confirm Python
-
-```powershell
-py -3.12 --version
-```
-
-You should see something similar to:
-
-```text
-Python 3.12.x
-```
-
-## 4. Create a new virtual environment
-
-From the project root:
+## 2. Instalar e abrir
 
 ```powershell
 py -3.12 -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+.\.venv\Scripts\python.exe -m streamlit run app.py
 ```
 
-Activate it:
+Não é necessário ativar o ambiente virtual nem alterar a política de execução do PowerShell. Num novo computador, cria um ambiente novo; não copies `.venv`.
+
+Nas utilizações seguintes, basta o último comando. A aplicação abre normalmente em `http://localhost:8501`. Para a parar: `Ctrl+C`. Se a porta estiver ocupada, acrescenta `--server.port 8505`.
+
+## 3. Escolher o modo
+
+| Modo | O que é necessário | O que fica disponível |
+| --- | --- | --- |
+| Heurísticas | Apenas a instalação acima | Cabeçalhos, URLs, linguagem e pontuação |
+| ML e decisão híbrida | Modelo local treinado | Probabilidade ML e HIGH / REVIEW / LOW |
+| Explicação LLM | Modelo ML, Ollama em execução e Qwen2.5 3B | Explicação opcional da avaliação existente |
+
+Sem o modelo ML, a app continua a funcionar, mas a avaliação híbrida e a explicação LLM ficam indisponíveis. Os modelos e datasets não são distribuídos neste repositório.
+
+### ML (opcional)
+
+Coloca o dataset de treino em `data/raw/Balanced_Dataset.csv`, com `body` e `label` (`0` legítimo, `1` phishing), e executa:
 
 ```powershell
-.\.venv\Scripts\Activate.ps1
+.\.venv\Scripts\python.exe -m training.train_model
 ```
 
-The terminal should then start with:
+O treino cria `models/phishing_model.joblib` e atualiza `results/ml_metrics.json`. Pode demorar e requer memória; não é um passo necessário para experimentar as heurísticas. Consulta [datasets e reprodução](docs/DATASETS.md) antes de obter dados. Carrega apenas modelos joblib de confiança e com versões compatíveis.
 
-```text
-(.venv)
-```
+### Ollama / LLM (opcional)
 
-## 5. Upgrade pip
+Instala o Ollama separadamente, mantém o serviço em execução e prepara o modelo:
 
 ```powershell
-python -m pip install --upgrade pip
+ollama pull qwen2.5:3b
 ```
 
-## 6. Install project dependencies
+Na aplicação, ativa “Generate local AI analyst explanation” antes de analisar. O código contacta `http://localhost:11434/api/generate`. O LLM explica a classificação existente; não a decide. A primeira resposta pode demorar enquanto o modelo carrega.
 
-If the repository already contains `requirements.txt`:
+## Testes e desenvolvimento (opcional)
 
 ```powershell
-pip install -r requirements.txt
+.\.venv\Scripts\python.exe -m pip install -r requirements-dev.txt
+.\.venv\Scripts\python.exe -m pytest
+.\.venv\Scripts\python.exe -m pip check
 ```
 
-The current PhishGuard dependencies are expected to include:
+Os testes não exigem datasets, modelo treinado nem Ollama. O workflow `.github/workflows/tests.yml` executa-os no GitHub quando houver push ou pull request.
 
-```text
-streamlit
-pandas
-scikit-learn
-joblib
-beautifulsoup4
-tldextract
-pytest
-```
-
-Ollama and LLM-related dependencies are not required yet.
-
-## 7. Select the Python interpreter in VS Code
-
-In VS Code:
-
-1. Press `Ctrl + Shift + P`
-2. Search for `Python: Select Interpreter`
-3. Select the interpreter inside:
-
-```text
-PhishGuard\.venv\Scripts\python.exe
-```
-
-## 8. Run the tests
-
-Use:
+Se as importações numéricas bloquearem num ambiente restrito, tenta apenas nessa sessão:
 
 ```powershell
-python -m pytest .
+$env:OPENBLAS_NUM_THREADS = '1'
+$env:OMP_NUM_THREADS = '1'
 ```
 
-This is the preferred test command for this project.
+Em VS Code, seleciona `.venv\Scripts\python.exe` como interpretador. Não é necessário instalar extensões para correr a app pelo terminal.
 
-## 9. Run the Streamlit app
+## Exemplos para uma demonstração
+
+Carrega estes ficheiros através de “Upload .eml”:
+
+- `samples/phishing/test_phishing.eml`: phishing PayPal; HIGH com o modelo usado nas capturas.
+- `samples/legitimate/purchase_confirmation.eml`: compra legítima; REVIEW com esse modelo.
+- `samples/legitimate/meeting_reminder.eml`: lembrete de reunião; LOW com esse modelo.
+
+São exemplos sintéticos, não emails privados. Os resultados ML podem mudar se treinares um modelo diferente.
+
+## Antes de publicar
 
 ```powershell
-streamlit run app.py
+git status --short
+git diff --check
 ```
 
-Streamlit should open the application in the browser, normally at:
-
-```text
-http://localhost:8501
-```
-
-## 10. Git workflow
-
-Before continuing development:
-
-```powershell
-git status
-git pull
-```
-
-After making changes:
-
-```powershell
-git add .
-git status
-git commit -m "your commit message"
-git push
-```
-
-Always check `git status` before committing to make sure `.venv`, cache files, secrets, or unrelated files are not included.
-
-## 11. Recommended `.gitignore`
-
-The project should include at least:
-
-```gitignore
-# Python
-__pycache__/
-*.py[cod]
-
-# Virtual environment
-.venv/
-venv/
-
-# IDE
-.vscode/
-.idea/
-
-# Model files
-*.pkl
-*.joblib
-
-# Environment variables and secrets
-.env
-.env.*
-secrets/
-*.key
-*.pem
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Pytest
-.pytest_cache/
-
-# Streamlit
-.streamlit/secrets.toml
-```
-
-## 12. Quick setup summary
-
-For a clean PC, the usual sequence is:
-
-```powershell
-git clone <GITHUB_REPOSITORY_URL>
-cd PhishGuard
-
-py -3.12 -m venv .venv
-.\.venv\Scripts\Activate.ps1
-
-python -m pip install --upgrade pip
-pip install -r requirements.txt
-
-python -m pytest .
-streamlit run app.py
-```
-
-## Notes
-
-- Use the GitHub repository as the main source of truth.
-- Keep the external-drive copy as a backup until the new setup is confirmed working.
-- Do not reuse a virtual environment copied from the old PC.
-- Do not commit API keys, passwords, tokens, real private emails, or other sensitive data.
+Revê apenas os ficheiros pretendidos. Não incluas `.venv`, datasets, modelos, credenciais ou emails privados. Os relatórios por amostra em `results/` contêm IDs locais, rótulos e previsões, não o texto original dos emails. O histórico anterior pode ainda conter versões com texto; não foi reescrito nesta revisão.

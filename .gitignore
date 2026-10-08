@@ -26,3 +26,9 @@ Thumbs.db
 
 # Datasets
 data/
+# Local environment and credentials
+.env
+.env.*
+secrets/
+*.key
+*.pem

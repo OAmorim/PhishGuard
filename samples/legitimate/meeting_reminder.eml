@@ -1,0 +1,15 @@
+From: Project Team <project@example.com>
+To: user@example.com
+Reply-To: project@example.com
+Return-Path: project@example.com
+Subject: Project meeting tomorrow
+Authentication-Results: mail.example.com; spf=pass; dkim=pass; dmarc=pass
+
+Hello,
+
+This is a reminder that our project meeting is scheduled for tomorrow at 10:00.
+
+We will review the current tasks and discuss next week's priorities.
+
+Regards,
+Project Team
